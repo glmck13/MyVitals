@@ -1,0 +1,28 @@
+<html>
+
+<table border=1>
+<tr>
+<form action="/MyVitals/readings.cgi" target="Readings" >
+<td>
+<select name="User" multiple size=5><!--#exec cmd="./options.sh User"--></select>
+</td>
+<td>
+<select name="Reading" multiple size=5><!--#exec cmd="./options.sh Reading"--></select>
+</td>
+<td>
+<input type="radio" name="Action" value="List" checked> List<br>
+<input type="radio" name="Action" value="Plot"> Plot<br>
+<input type="submit" value="Display" />
+</form>
+</td>
+<td>
+<form action="/MyVitals/myvitals.cgi" target="Readings" >
+<input type="submit" value="Restart" />
+</form>
+</td>
+</tr>
+
+</table>
+
+
+</html>
