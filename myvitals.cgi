@@ -11,7 +11,20 @@ print "<pre>"
 pids=""
 while IFS='|' read App x
 do
-	pids+=" $(ps | grep $App | cut -c 1-6)"
+	case "$App" in
+
+	\#greeting)
+		espeak "$x" >/dev/null 2>&1
+		;;
+
+	\#*)
+		;;
+
+	*)
+		pids+=" $(ps | grep $App | cut -c 1-6)"
+		;;
+	esac
+
 done <$CONFIG
 
 pids=$(print $pids)
@@ -26,5 +39,14 @@ print "</html>"
 
 while IFS='|' read App x
 do
-	${App}.sh >/dev/null 2>&1 &
+	case "$App" in
+
+	\#*)
+		;;
+
+	*)
+		${App}.sh >/dev/null 2>&1 &
+		;;
+	esac
+
 done <$CONFIG
