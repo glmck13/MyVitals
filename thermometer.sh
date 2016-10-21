@@ -9,6 +9,7 @@ READINGS=readings.csv
 PATH=.:$PATH
 
 grep -i thermometer $CONFIG | IFS='|' read x THERMOPTS DBUSOPTS
+eval $DBUSOPTS
 
 typeset -F2 f
 
