@@ -29,7 +29,7 @@ do
 		s=${x%% *}
 		if [ "$State" = "IDLE" ]; then
 			User=$(users.sh $(<$USERNO))
-			espeak "Reading temperature for $User"
+			espeak "Reading temperature for $User."
 			State=READING
 		fi
 		if [ "$s" = "final" ]; then
@@ -52,13 +52,14 @@ do
 		f=$(print $e $m | fconvert -d)
 		print $s=$f
 		if [ "$State" = "FINAL" ]; then
-			espeak "Your temperature is $f degrees"
 			State=IDLE
 			Key=$(<$KEY); (( ++Key ))
-			Info="$User,Temp,$f,$(date +"%Y-%m-%d_%H-%M-%S"),$Key"
 			print $Key >$KEY
+			Date=$(date +"%Y-%m-%d_%H-%M-%S")
+			Info="$User,Temp,$f,$Date,$Key"
 			print $Info >$INFO
 			print $Info >>$READINGS
+			espeak "Your temperature is $f degrees."
 		fi
 		;;
 	esac
