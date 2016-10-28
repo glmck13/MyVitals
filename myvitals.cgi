@@ -27,6 +27,12 @@ do
 
 done <$CONFIG
 
+pids=$(
+for p in $pids
+do
+	pstree $p -p -a | sed -e "s/.*,//" -e "s/ .*//"
+done | sort | uniq
+)
 pids=$(print $pids)
 [ "$pids" ] && kill $pids
 
