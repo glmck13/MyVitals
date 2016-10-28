@@ -29,7 +29,7 @@ do
 		s=${x%% *}
 		if [ "$State" = "IDLE" ]; then
 			User=$(users.sh $(<$USERNO))
-			espeak "Reading temperature for $User."
+			espeak "Reading temperature for $User from $Device."
 			State=READING
 		fi
 		if [ "$s" = "final" ]; then
