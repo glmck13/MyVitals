@@ -48,7 +48,7 @@ do
 
 	do
 
-print $x >>/tmp/pressure.log
+print "$x" >>/tmp/pressure.log
 
 	if [[ $x == *value/descriptor* ]]; then
 		Device=$(print ${x##*:} | xxd -r -p)

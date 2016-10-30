@@ -58,7 +58,7 @@ do
 
 	do
 
-print $x >>/tmp/thermometer.log
+print "$x" >>/tmp/thermometer.log
 
 	if [[ $x == *0x0003* ]]; then
 		Device=$(print ${x##*:} | xxd -r -p)
