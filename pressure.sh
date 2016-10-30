@@ -13,6 +13,8 @@ eval $BPOPTS
 
 typeset -i s d p
 
+rm -f /tmp/pressure.log
+
 while true
 do
 	expect - <<-EOF  | while read x

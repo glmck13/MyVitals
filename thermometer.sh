@@ -19,6 +19,8 @@ getReading ()
 	print $x4 $x3$x2$x1 | fconvert
 }
 
+rm -f /tmp/thermometer.log
+
 while true
 do
 	expect - <<-EOF  | while read x
