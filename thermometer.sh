@@ -31,8 +31,10 @@ do
 		send "connect\r"
 		expect {
 			"Connection successful" { break }
-			"connect error:" { sleep 5; continue }
-			timeout { continue }
+			"Connection refused" { sleep 5; continue }
+			"Error:" { sleep 5; exit }
+			"connect error:" { sleep 5; exit }
+			timeout { sleep 5; exit }
 		}
 	}
 	expect "> "
@@ -54,6 +56,8 @@ do
 
 	do
 
+print $x >>/tmp/thermometer.log
+
 	if [[ $x == *0x0003* ]]; then
 		Device=$(print ${x##*:} | xxd -r -p)
 		User=$(users.sh $(<$USERNO))
@@ -74,6 +78,10 @@ do
 		print $Info >>$READINGS
 		print "Your temperature is $f degrees"
 		espeak "Your temperature is $f degrees"
+
+	elif [[ $x == *Invalid\ file\ descriptor* ]]; then
+		x=${x%\)*} x=${x#*:}
+		kill $x
 	fi
 
 	done

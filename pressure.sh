@@ -25,8 +25,10 @@ do
 		send "connect\r"
 		expect {
 			"Connection successful" { break }
-			"connect error:" { sleep 5; continue }
-			timeout { continue }
+			"Connection refused" { sleep 5; continue }
+			"Error:" { sleep 5; exit }
+			"connect error:" { sleep 5; exit }
+			timeout { sleep 5; exit }
 		}
 	}
 	expect "> "
@@ -38,13 +40,15 @@ do
 	expect "Characteristic value was written successfully"
 	expect "> "
 
-	expect "* 00"
+	expect "value: 0c"
 	sleep 10
 	EOF
 
 	do
 
-	if [[ $x == *descriptor:* ]]; then
+print $x >>/tmp/pressure.log
+
+	if [[ $x == *value/descriptor* ]]; then
 		Device=$(print ${x##*:} | xxd -r -p)
 		User=$(users.sh $(<$USERNO))
 		print "Reading pressure for $User from $Device."
@@ -71,6 +75,10 @@ do
 		print $Info >>$READINGS
 		print "Your pressure is $s over $d. Your pulse is $p."
 		espeak "Your pressure is $s over $d. Your pulse is $p."
+
+	elif [[ $x == *Invalid\ file\ descriptor* ]]; then
+		x=${x%\)*} x=${x#*:}
+		kill $x
 	fi
 
 	done
