@@ -27,7 +27,6 @@ do
 		send "connect\r"
 		expect {
 			"Connection successful" { break }
-			"Connection refused" { sleep 5; continue }
 			"Error:" { sleep 5; exit }
 			"connect error:" { sleep 5; exit }
 			timeout { sleep 5; exit }
