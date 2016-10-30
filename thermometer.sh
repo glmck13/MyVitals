@@ -8,59 +8,73 @@ INFO=info.csv
 READINGS=readings.csv
 PATH=.:$PATH
 
-grep -i thermometer $CONFIG | IFS='|' read x THERMOPTS DBUSOPTS
-eval $DBUSOPTS
+grep -i thermometer $CONFIG | IFS='|' read x HTPOPTS
+eval $HTPOPTS
 
 typeset -F2 f
 
-State=IDLE
+getReading ()
+{
+	print ${1##*:} | read x0 x1 x2 x3 x4 x5
+	print $x4 $x3$x2$x1 | fconvert
+}
 
-dbus-send --system --type=method_call --print-reply=literal --dest=org.bluez \
-	/org/bluez${DBUSOPTS} \
-	org.freedesktop.DBus.Properties.Get string:"org.bluez.Device1" string:"Name" | read x Device
-
-print $Device
-
-thermometer.py $THERMOPTS | while read x
+while true
 do
-	case "$x" in
+	expect - <<-EOF  | while read x
 
-	*measurement*)
-		s=${x%% *}
-		if [ "$State" = "IDLE" ]; then
-			User=$(users.sh $(<$USERNO))
-			espeak "Reading temperature for $User from $Device."
-			State=READING
-		fi
-		if [ "$s" = "final" ]; then
-			State=FINAL
-		fi
-		;;
+	set timeout 100
+	spawn gatttool -b ${HTPOPTS} -I
+	expect "> "
 
-	Mantissa:*)
-		m=${x#*:}
-		;;
+	while true {
+		send "connect\r"
+		expect {
+			"Connection successful" { break }
+			"connect error:" { sleep 5; continue }
+			timeout { continue }
+		}
+	}
+	expect "> "
 
-	Exponent:*)
-		e=${x#*:}
-		;;
+	send "char-read-uuid 0x2a00\r"
+	expect "> "
 
-	Unit:*)
-		;;
+	send "char-write-req 0x0018 0100\r"
+	expect "Characteristic value was written successfully"
+	expect "> "
 
-	Type:*)
-		f=$(print $e $m | fconvert -d)
-		print $s=$f
-		if [ "$State" = "FINAL" ]; then
-			State=IDLE
-			Key=$(<$KEY); (( ++Key ))
-			print $Key >$KEY
-			Date=$(date +"%Y-%m-%d_%H-%M-%S")
-			Info="$User,Temp,$f,$Date,$Key"
-			print $Info >$INFO
-			print $Info >>$READINGS
-			espeak "Your temperature is $f degrees."
-		fi
-		;;
-	esac
+	send "char-write-req 0x0013 0200\r"
+	expect "Characteristic value was written successfully"
+	expect "> "
+
+	expect "Indication"
+	sleep 10
+	EOF
+
+	do
+
+	if [[ $x == *0x0003* ]]; then
+		Device=$(print ${x##*:} | xxd -r -p)
+		User=$(users.sh $(<$USERNO))
+		print "Reading temperature for $User from $Device."
+		espeak "Reading temperature for $User from $Device."
+
+	elif [[ $x == *0x0017* ]]; then
+		f=$(getReading "$x")
+		print "Current reading = $f"
+
+	elif [[ $x == *0x0012* ]]; then
+		f=$(getReading "$x")
+		Key=$(<$KEY); (( ++Key ))
+		print $Key >$KEY
+		Date=$(date +"%Y-%m-%d_%H-%M-%S")
+		Info="$User,Temp,$f,$Date,$Key"
+		print $Info >$INFO
+		print $Info >>$READINGS
+		print "Your temperature is $f degrees"
+		espeak "Your temperature is $f degrees"
+	fi
+
+	done
 done
