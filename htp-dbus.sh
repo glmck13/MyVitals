@@ -7,8 +7,9 @@ KEY=key.cfg
 INFO=info.csv
 READINGS=readings.csv
 PATH=.:$PATH
+SCRIPTNAME=${0%.*}
 
-grep -i thermometer $CONFIG | IFS='|' read x THERMOPTS DBUSOPTS
+grep -i $SCRIPTNAME $CONFIG | IFS='|' read x THERMOPTS DBUSOPTS
 eval $DBUSOPTS
 
 typeset -F2 f
