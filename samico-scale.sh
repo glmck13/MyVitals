@@ -11,16 +11,11 @@ SCRIPTNAME=${0}
 SCRIPTNAME=${SCRIPTNAME##*/}
 SCRIPTNAME=${SCRIPTNAME%.*}
 
-grep -i $SCRIPTNAME $CONFIG | IFS='|' read x HTPOPTS
-eval $HTPOPTS
+grep -i $SCRIPTNAME $CONFIG | IFS='|' read x SCALEOPTS
+eval $SCALEOPTS
 
-typeset -F2 f
-
-getReading ()
-{
-	print ${1##*:} | read x0 x1 x2 x3 x4 x5
-	print $x4 $x3$x2$x1 | fconvert
-}
+typeset -i w
+typeset -F1 f
 
 rm -f /tmp/$SCRIPTNAME.log
 
@@ -29,7 +24,7 @@ do
 	expect - <<-EOF  | while read x
 
 	set timeout 100
-	spawn gatttool -b ${HTPOPTS} -I
+	spawn gatttool -b ${SCALEOPTS} -I
 	expect "> "
 
 	while true {
@@ -43,45 +38,43 @@ do
 	}
 	expect "> "
 
-	send "char-read-uuid 0x2a00\r"
-	expect "> "
+        send "char-read-hnd 0x0003\r"
+        expect "> "
 
-	send "char-write-req 0x0018 0100\r"
+	send "char-write-req 0x002f 0100\r"
 	expect "Characteristic value was written successfully"
 	expect "> "
 
-	send "char-write-req 0x0013 0200\r"
-	expect "Characteristic value was written successfully"
-	expect "> "
-
-	expect "Indication"
+	expect "value: cb 01"
 	sleep 10
 	EOF
 
 	do
 
-print "$x" >>/tmp/$SCRIPTNAME.log
+print -- "$x" >>/tmp/$SCRIPTNAME.log
 
-	if [[ $x == *0x0003* ]]; then
+	if [[ $x == *value/descriptor* ]]; then
 		Device=$(print ${x##*:} | xxd -r -p)
 		User=$(users.sh $(<$USERNO))
-		print "Reading temperature for $User from $Device."
-		espeak "Reading temperature for $User from $Device."
+		print "Reading weight for $User from $Device."
+		espeak "Reading weight for $User from $Device."
 
-	elif [[ $x == *0x0017* ]]; then
-		f=$(getReading "$x")
-		print "Current reading = $f"
+	elif [[ $x == *0x002e\ value:\ ca* ]]; then
+		print ${x##*:} | read x x whi wlo x
+		w=16#${whi}${wlo}; (( f = w/10 ))
+		print "Weight = $f kgs"
 
-	elif [[ $x == *0x0012* ]]; then
-		f=$(getReading "$x")
+	elif [[ $x == *0x002e* ]]; then
+		print ${x##*:} | read x x whi wlo x
+		w=16#${whi}${wlo}; (( f = w/10 ))
 		Key=$(<$KEY); (( ++Key ))
 		print $Key >$KEY
 		Date=$(date +"%Y-%m-%d_%H-%M-%S")
-		Info="$User,Temp,$f,$Date,$Key"
+		Info="$User,Weight,$w,$Date,$Key"
 		print $Info >$INFO
 		print $Info >>$READINGS
-		print "Your temperature is $f degrees"
-		espeak "Your temperature is $f degrees"
+		print "Your weight is $f pounds."
+		espeak "Your weight is $f pounds."
 
 	elif [[ $x == *Invalid\ file\ descriptor* ]]; then
 		x=${x%\)*} x=${x#*:}

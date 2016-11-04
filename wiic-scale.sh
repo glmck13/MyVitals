@@ -7,7 +7,9 @@ KEY=key.cfg
 INFO=info.csv
 READINGS=readings.csv
 PATH=.:$PATH
-SCRIPTNAME=${0%.*}
+SCRIPTNAME=${0}
+SCRIPTNAME=${SCRIPTNAME##*/}
+SCRIPTNAME=${SCRIPTNAME%.*}
 
 set -A User $(users.sh)
 Index=$(<$USERNO)
