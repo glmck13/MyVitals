@@ -52,7 +52,7 @@ do
 
 print "$x" >>/tmp/$SCRIPTNAME.log
 
-	if [[ $x == *value/descriptor* ]]; then
+	if [[ $x == *value/descriptor:* ]]; then
 		Device=$(print ${x##*:} | xxd -r -p)
 		User=$(users.sh $(<$USERNO))
 		print "Reading pressure for $User from $Device."
