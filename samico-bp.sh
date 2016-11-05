@@ -7,14 +7,12 @@ KEY=key.cfg
 INFO=info.csv
 READINGS=readings.csv
 PATH=.:$PATH
-SCRIPTNAME=${0}
-SCRIPTNAME=${SCRIPTNAME##*/}
-SCRIPTNAME=${SCRIPTNAME%.*}
+SCRIPTNAME=${0} SCRIPTNAME=${SCRIPTNAME##*/} SCRIPTNAME=${SCRIPTNAME%.*}
 
 grep -i $SCRIPTNAME $CONFIG | IFS='|' read x BPOPTS
 eval $BPOPTS
 
-typeset -i s d p
+typeset -i s d p b
 
 rm -f /tmp/$SCRIPTNAME.log
 
@@ -40,6 +38,9 @@ do
         send "char-read-hnd 0x0003\r"
         expect "> "
 
+	send "char-read-uuid 0x2a19\r"
+	expect "> "
+
 	send "char-write-req 0x002f 0100\r"
 	expect "Characteristic value was written successfully"
 	expect "> "
@@ -52,33 +53,39 @@ do
 
 print "$x" >>/tmp/$SCRIPTNAME.log
 
-	if [[ $x == *value/descriptor:* ]]; then
+	if [[ $x == *Characteristic\ value/descriptor:* ]]; then
 		Device=$(print ${x##*:} | xxd -r -p)
 		User=$(users.sh $(<$USERNO))
 		print "Reading pressure for $User from $Device."
 		espeak "Reading pressure for $User from $Device."
 
-	elif [[ $x == *0x002e\ value:\ 20* ]]; then
+	elif [[ $x == *handle:\ 0x0036* ]]; then
+		print ${x##*:} | read xb x
+		b=16#${xb}
+		print "Battery level = $b%"
+
+	elif [[ $x == *Notification\ handle\ =\ 0x002e\ value:\ 20* ]]; then
 		print ${x##*:} | read x xp x
 		p=16#${xp}
 		print "Pressure = $p"
 
-	elif [[ $x == *0x002e* ]]; then
+	elif [[ $x == *Notification\ handle\ =\ 0x002e\ value:\ 0c* ]]; then
 		print ${x##*:} | read x x xs x xd x x x xp x
 		s=16#${xs} d=16#${xd} p=16#${xp}
 		Key=$(<$KEY); (( ++Key ))
 		print $Key >$KEY
 		Date=$(date +"%Y-%m-%d_%H-%M-%S")
-		Info="$User,BP,$s/$d[$p],$Date,$Key"
+		Info="$User,BP,$s/$d[$p],$Date,$Key,$b"
 		print $Info >$INFO
-		Info="$User,Systolic,$s,$Date,$Key"
+		Info="$User,Systolic,$s,$Date,$Key,$b"
 		print $Info >>$READINGS
-		Info="$User,Diastolic,$d,$Date,$Key"
+		Info="$User,Diastolic,$d,$Date,$Key,$b"
 		print $Info >>$READINGS
-		Info="$User,Pulse,$p,$Date,$Key"
+		Info="$User,Pulse,$p,$Date,$Key,$b"
 		print $Info >>$READINGS
 		print "Your pressure is $s over $d. Your pulse is $p."
 		espeak "Your pressure is $s over $d. Your pulse is $p."
+		espeak "Battery level is $b%."
 
 	elif [[ $x == *Invalid\ file\ descriptor* ]]; then
 		x=${x%\)*} x=${x#*:}

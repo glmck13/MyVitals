@@ -11,4 +11,5 @@ cat - <<EOF
 $User $Reading=$Value
 </h1>
 DateTime=$DateTime
+Battery=$Battery%
 EOF

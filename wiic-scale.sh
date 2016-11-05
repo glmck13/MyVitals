@@ -7,9 +7,7 @@ KEY=key.cfg
 INFO=info.csv
 READINGS=readings.csv
 PATH=.:$PATH
-SCRIPTNAME=${0}
-SCRIPTNAME=${SCRIPTNAME##*/}
-SCRIPTNAME=${SCRIPTNAME%.*}
+SCRIPTNAME=${0} SCRIPTNAME=${SCRIPTNAME##*/} SCRIPTNAME=${SCRIPTNAME%.*}
 
 set -A User $(users.sh)
 Index=$(<$USERNO)
@@ -41,7 +39,7 @@ MEASURE)
 			espeak "${User[$Index]} please step off. Your weight is $Weight pounds!"
 			State=IDLE Countdown=0
 			Key=$(<$KEY); (( ++Key ))
-			Info="${User[$Index]},Weight,$Weight,$(date +"%Y-%m-%d_%H-%M-%S"),$Key"
+			Info="${User[$Index]},Weight,$Weight,$(date +"%Y-%m-%d_%H-%M-%S"),$Key,??"
 			print $Key >$KEY
 			print $Info >$INFO
 			print $Info >>$READINGS

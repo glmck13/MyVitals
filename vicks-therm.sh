@@ -7,13 +7,12 @@ KEY=key.cfg
 INFO=info.csv
 READINGS=readings.csv
 PATH=.:$PATH
-SCRIPTNAME=${0}
-SCRIPTNAME=${SCRIPTNAME##*/}
-SCRIPTNAME=${SCRIPTNAME%.*}
+SCRIPTNAME=${0} SCRIPTNAME=${SCRIPTNAME##*/} SCRIPTNAME=${SCRIPTNAME%.*}
 
 grep -i $SCRIPTNAME $CONFIG | IFS='|' read x HTPOPTS
 eval $HTPOPTS
 
+typeset -i b
 typeset -F2 f
 
 getReading ()
@@ -46,6 +45,9 @@ do
 	send "char-read-uuid 0x2a00\r"
 	expect "> "
 
+	send "char-read-uuid 0x2a19\r"
+	expect "> "
+
 	send "char-write-req 0x0018 0100\r"
 	expect "Characteristic value was written successfully"
 	expect "> "
@@ -68,6 +70,11 @@ print "$x" >>/tmp/$SCRIPTNAME.log
 		print "Reading temperature for $User from $Device."
 		espeak "Reading temperature for $User from $Device."
 
+	elif [[ $x == *0x0048* ]]; then
+		print ${x##*:} | read xb x
+		b=16#${xb}
+		print "Battery level = $b%"
+
 	elif [[ $x == *0x0017* ]]; then
 		f=$(getReading "$x")
 		print "Current reading = $f"
@@ -77,11 +84,12 @@ print "$x" >>/tmp/$SCRIPTNAME.log
 		Key=$(<$KEY); (( ++Key ))
 		print $Key >$KEY
 		Date=$(date +"%Y-%m-%d_%H-%M-%S")
-		Info="$User,Temp,$f,$Date,$Key"
+		Info="$User,Temp,$f,$Date,$Key,$b"
 		print $Info >$INFO
 		print $Info >>$READINGS
 		print "Your temperature is $f degrees"
 		espeak "Your temperature is $f degrees"
+		espeak "Battery level is $b%."
 
 	elif [[ $x == *Invalid\ file\ descriptor* ]]; then
 		x=${x%\)*} x=${x#*:}

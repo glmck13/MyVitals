@@ -1,6 +1,6 @@
 <html>
 <head>
-<meta http-equiv="refresh" content="5">
+<meta http-equiv="refresh" content="10">
 </head>
 <body>
 <!--#exec cmd="./info.sh" --> 

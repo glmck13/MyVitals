@@ -7,9 +7,7 @@ KEY=key.cfg
 INFO=info.csv
 READINGS=readings.csv
 PATH=.:$PATH
-SCRIPTNAME=${0}
-SCRIPTNAME=${SCRIPTNAME##*/}
-SCRIPTNAME=${SCRIPTNAME%.*}
+SCRIPTNAME=${0} SCRIPTNAME=${SCRIPTNAME##*/} SCRIPTNAME=${SCRIPTNAME%.*}
 
 grep -i $SCRIPTNAME $CONFIG | IFS='|' read x THERMOPTS DBUSOPTS
 eval $DBUSOPTS
@@ -59,7 +57,7 @@ do
 			Key=$(<$KEY); (( ++Key ))
 			print $Key >$KEY
 			Date=$(date +"%Y-%m-%d_%H-%M-%S")
-			Info="$User,Temp,$f,$Date,$Key"
+			Info="$User,Temp,$f,$Date,$Key,??"
 			print $Info >$INFO
 			print $Info >>$READINGS
 			espeak "Your temperature is $f degrees."

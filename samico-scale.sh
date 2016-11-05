@@ -7,14 +7,12 @@ KEY=key.cfg
 INFO=info.csv
 READINGS=readings.csv
 PATH=.:$PATH
-SCRIPTNAME=${0}
-SCRIPTNAME=${SCRIPTNAME##*/}
-SCRIPTNAME=${SCRIPTNAME%.*}
+SCRIPTNAME=${0} SCRIPTNAME=${SCRIPTNAME##*/} SCRIPTNAME=${SCRIPTNAME%.*}
 
 grep -i $SCRIPTNAME $CONFIG | IFS='|' read x SCALEOPTS
 eval $SCALEOPTS
 
-typeset -i w
+typeset -i w b
 typeset -F1 f
 
 rm -f /tmp/$SCRIPTNAME.log
@@ -41,40 +39,49 @@ do
         send "char-read-hnd 0x0003\r"
         expect "> "
 
+	send "char-read-uuid 0x2a19\r"
+	expect "> "
+
 	send "char-write-req 0x002f 0100\r"
 	expect "Characteristic value was written successfully"
 	expect "> "
 
 	expect "value: cb 01"
-	sleep 10
+	sleep 20
 	EOF
 
 	do
 
 print -- "$x" >>/tmp/$SCRIPTNAME.log
 
-	if [[ $x == *value/descriptor:* ]]; then
+	if [[ $x == *Characteristic\ value/descriptor:* ]]; then
 		Device=$(print ${x##*:} | xxd -r -p)
 		User=$(users.sh $(<$USERNO))
 		print "Reading weight for $User from $Device."
 		espeak "Reading weight for $User from $Device."
 
-	elif [[ $x == *0x002e\ value:\ ca* ]]; then
-		print ${x##*:} | read x x whi wlo x
-		w=16#${whi}${wlo} f=$w; (( f /= 10 ))
+	elif [[ $x == *handle:\ 0x0036* ]]; then
+		print ${x##*:} | read lo x
+		b=16#${lo}
+		print "Battery level = $b%"
+
+	elif [[ $x == *Notification\ handle\ =\ 0x002e\ value:\ ca* ]]; then
+		print ${x##*:} | read x x hi lo x
+		w=16#${hi}${lo} f=$w; (( f /= 10 ))
 		print "Weight = $f kgs"
 
-	elif [[ $x == *0x002e* ]]; then
-		print ${x##*:} | read x x whi wlo x
-		w=16#${whi}${wlo} f=$w; (( f /= 10 ))
+	elif [[ $x == *Notification\ handle\ =\ 0x002e\ value:\ cb* ]]; then
+		print ${x##*:} | read x x hi lo x
+		w=16#${hi}${lo} f=$w; (( f /= 10 ))
 		Key=$(<$KEY); (( ++Key ))
 		print $Key >$KEY
 		Date=$(date +"%Y-%m-%d_%H-%M-%S")
-		Info="$User,Weight,$f,$Date,$Key"
+		Info="$User,Weight,$f,$Date,$Key,$b"
 		print $Info >$INFO
 		print $Info >>$READINGS
 		print "Your weight is $f pounds."
 		espeak "Your weight is $f pounds."
+		espeak "Battery level is $b%."
 
 	elif [[ $x == *Invalid\ file\ descriptor* ]]; then
 		x=${x%\)*} x=${x#*:}
