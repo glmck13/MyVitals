@@ -5,6 +5,6 @@ Simple toolkit to read, store, &amp; plot health data from Bluetooth/BLE devices
 * Thermometer: Vicks
 * Blood pressure monitor: Pyle/Samico
 
-[See the Wiki for more info](../../wiki)
+[See the Wiki for more info >>](../../wiki)
 
 ![](/docs/MyVitals.png)
