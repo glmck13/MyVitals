@@ -104,7 +104,7 @@ Delete)
 	print "Content-type: text/html\n"
 	print "<html>"
 	print "<pre>"
-	print Deleted:
+	print "Deleted: $Klist"
 	egrep "$Klist" $READINGS
 	egrep -v "$Klist" $READINGS >$READINGS.tmp; mv $READINGS.tmp $READINGS
 	print "</pre>"

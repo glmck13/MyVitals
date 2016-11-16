@@ -9,15 +9,15 @@ case $c in
 	Reading)	result+=" 2" ;;
 	Value)		result+=" 3" ;;
 	DateTime)	result+=" 4" ;;
-	Key)		result+=" 5" ;;
-	Battery)	result+=" 6" ;;
+	Battery)	result+=" 5" ;;
+	Key)		result+=" 6" ;;
 	1)		result+=" User" ;;
 	2)		result+=" Reading" ;;
 	3)		result+=" Value" ;;
 	4)		result+=" DateTime" ;;
-	5)		result+=" Key" ;;
-	6)		result+=" Battery" ;;
-	*)		result+=" User Reading Value DateTime Key Battery" ;;
+	5)		result+=" Battery" ;;
+	6)		result+=" Key" ;;
+	*)		result+=" User Reading Value DateTime Battery Key" ;;
 esac
 done
 
