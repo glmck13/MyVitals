@@ -84,7 +84,7 @@ print "$x" >>/tmp/$SCRIPTNAME.log
 		Key=$(<$KEY); (( ++Key ))
 		print $Key >$KEY
 		Date=$(date +"%Y-%m-%d_%H-%M-%S")
-		Info="$User,Temp,$f,$Date,$Key,$b"
+		Info="$User,Temp,$f,$Date,$b,$Key"
 		print $Info >$INFO
 		print $Info >>$READINGS
 		print "Your temperature is $f degrees"

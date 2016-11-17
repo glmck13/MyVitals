@@ -39,7 +39,7 @@ MEASURE)
 			espeak "${User[$Index]} please step off. Your weight is $Weight pounds!"
 			State=IDLE Countdown=0
 			Key=$(<$KEY); (( ++Key ))
-			Info="${User[$Index]},Weight,$Weight,$(date +"%Y-%m-%d_%H-%M-%S"),$Key,??"
+			Info="${User[$Index]},Weight,$Weight,$(date +"%Y-%m-%d_%H-%M-%S"),?,$Key"
 			print $Key >$KEY
 			print $Info >$INFO
 			print $Info >>$READINGS

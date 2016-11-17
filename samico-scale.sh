@@ -76,7 +76,7 @@ print -- "$x" >>/tmp/$SCRIPTNAME.log
 		Key=$(<$KEY); (( ++Key ))
 		print $Key >$KEY
 		Date=$(date +"%Y-%m-%d_%H-%M-%S")
-		Info="$User,Weight,$f,$Date,$Key,$b"
+		Info="$User,Weight,$f,$Date,$b,$Key"
 		print $Info >$INFO
 		print $Info >>$READINGS
 		print "Your weight is $f pounds."

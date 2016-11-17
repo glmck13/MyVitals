@@ -75,13 +75,13 @@ print "$x" >>/tmp/$SCRIPTNAME.log
 		Key=$(<$KEY); (( ++Key ))
 		print $Key >$KEY
 		Date=$(date +"%Y-%m-%d_%H-%M-%S")
-		Info="$User,BP,$s/$d[$p],$Date,$Key,$b"
+		Info="$User,BP,$s/$d[$p],$Date,$b,$Key"
 		print $Info >$INFO
-		Info="$User,Systolic,$s,$Date,$Key,$b"
+		Info="$User,Systolic,$s,$Date,$b,$Key"
 		print $Info >>$READINGS
-		Info="$User,Diastolic,$d,$Date,$Key,$b"
+		Info="$User,Diastolic,$d,$Date,$b,$Key"
 		print $Info >>$READINGS
-		Info="$User,Pulse,$p,$Date,$Key,$b"
+		Info="$User,Pulse,$p,$Date,$b,$Key"
 		print $Info >>$READINGS
 		print "Your pressure is $s over $d. Your pulse is $p."
 		espeak "Your pressure is $s over $d. Your pulse is $p."

@@ -57,7 +57,7 @@ do
 			Key=$(<$KEY); (( ++Key ))
 			print $Key >$KEY
 			Date=$(date +"%Y-%m-%d_%H-%M-%S")
-			Info="$User,Temp,$f,$Date,$Key,??"
+			Info="$User,Temp,$f,$Date,?,$Key"
 			print $Info >$INFO
 			print $Info >>$READINGS
 			espeak "Your temperature is $f degrees."
