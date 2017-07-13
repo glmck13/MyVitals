@@ -1,7 +1,7 @@
 #!/bin/ksh
 
 MYVITALS=/var/www/html/MyVitals; cd $MYVITALS
-CONFIG=myvitals.cfg
+CONFIG=myvitals.conf
 PATH=.:$PATH
 
 print "Content-type: text/html\n"
@@ -37,7 +37,7 @@ pids=$(print $pids)
 [ "$pids" ] && kill $pids
 
 print "Killed: $pids"
-print "Current user: $(users.sh $(<userno.cfg))"
+print "Current user: $(users.sh $(<userno.conf))"
 cat $CONFIG
 
 print "</pre>"

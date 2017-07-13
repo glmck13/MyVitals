@@ -1,7 +1,7 @@
 #!/bin/ksh
 
 MYVITALS=/var/www/html/MyVitals; cd $MYVITALS
-CONFIG=myvitals.cfg
+CONFIG=myvitals.conf
 PATH=.:$PATH
 
 grep -i users $CONFIG | IFS='|' read x x

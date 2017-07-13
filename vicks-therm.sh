@@ -1,9 +1,9 @@
 #!/bin/ksh
 
 MYVITALS=/var/www/html/MyVitals; cd $MYVITALS
-CONFIG=myvitals.cfg
-USERNO=userno.cfg
-KEY=key.cfg
+CONFIG=myvitals.conf
+USERNO=userno.conf
+KEY=key.conf
 INFO=info.csv
 READINGS=readings.csv
 PATH=.:$PATH
